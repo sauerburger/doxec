@@ -14,6 +14,14 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         retval = Markdown.parse_command("<!-- WRITE hello_world.c -->")
         self.assertEqual(retval, ("WRITE", "hello_world.c"))
 
+    def test_parse_command_valid_no_end(self):
+        """
+        Run parse_command on an input without the comment end `-->` and check
+        the return value.
+        """
+        retval = Markdown.parse_command("<!-- WRITE hello_world.c")
+        self.assertEqual(retval, ("WRITE", "hello_world.c"))
+
     def test_parse_command_whitespace(self):
         """
         Run parse_command on a valid input with whitespace added/removed in various
@@ -69,6 +77,7 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         retval = Markdown.parse_command("<! -- WRITE hello_world.c -->")
         self.assertIsNone(retval)
 
+        # this is still invalid, since the args part must not contain '>'
         retval = Markdown.parse_command("<!-- WRITE hello_world.c - ->")
         self.assertIsNone(retval)
 
@@ -81,9 +90,6 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         self.assertIsNone(retval)
 
         retval = Markdown.parse_command("!-- WRITE hello_world.c -->")
-        self.assertIsNone(retval)
-
-        retval = Markdown.parse_command("<!-- WRITE hello_world.c ")
         self.assertIsNone(retval)
 
         retval = Markdown.parse_command("WRITE hello_world.c")

@@ -199,19 +199,25 @@ class Markdown(DoxecSyntax):
 
         <!-- COMMAND ARGS -->
 
+        The args part must not contain the greater than '>" character. The
+        trailing '-->' is optional.
         None is returned, if the format does not match. If a valid line is
         found, the tuple (command, args) is returned. 
 
         >>> Markdown.parse_command("<!-- write file.txt -->")
         ('write', 'file.txt')
 
-        >>> Markdown.parse_command("<!-- invalid line ") is None
+        >>> Markdown.parse_command("<!-- write file.txt")
+        ('write', 'file.txt')
+
+        >>> Markdown.parse_command("-- invalid line -->") is None
         True
         """
-        match = re.match(r"<!--\s+(\S.*\S)\s+-->\s*$", line)
+        match = re.match(r"<!--\s+([^> \t\n\r\f\v][^>]*)(\s+-->)?\s*$", line)
         if match is None:
             return None
-        token = re.split("\s+", match.group(1), maxsplit=1)
+
+        token = re.split("\s+", match.group(1).strip(), maxsplit=1)
         if len(token) == 2:
             return tuple(token)
         else:
