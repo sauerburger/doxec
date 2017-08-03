@@ -63,9 +63,6 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         retval = Markdown.parse_command("<!--WRITE hello_world.c -->")
         self.assertIsNone(retval)
 
-        retval = Markdown.parse_command("<!-- WRITE hello_world.c -->")
-        self.assertIsNone(retval)
-
         retval = Markdown.parse_command(" <!-- WRITE hello_world.c -->")
         self.assertIsNone(retval)
 
@@ -81,9 +78,6 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         input, and expect that the return valid is None.
         """
         retval = Markdown.parse_command("<-- WRITE hello_world.c -->")
-        self.assertIsNone(retval)
-
-        retval = Markdown.parse_command("<!-- WRITE hello_world.c -->")
         self.assertIsNone(retval)
 
         retval = Markdown.parse_command("!-- WRITE hello_world.c -->")
@@ -208,7 +202,7 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         
         retval = Markdown.parse_code(block)
         self.assertIsNone(retval)
-        self.assertEqual(block, [])
+        self.assertEqual(block, ['touch /tmp', 'touch /home', '```'])
 
     def test_parse_code_missing_end(self):
         """
@@ -228,7 +222,7 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
     def test_parse_code_leading_lines(self):
         """
         Run parse_command on input with leading lines and check that parsing
-        failed.
+        failed. The parse method should not remove any lines in this case.
         """
         block = []
         block.append("This is a leading line.")
@@ -236,9 +230,12 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         block.append("touch /tmp")
         block.append("touch /home")
         block.append("```")
+
         
         retval = Markdown.parse_code(block)
         self.assertIsNone(retval)
+
+        self.assertEqual(len(block), 5)
 
     def test_parse_valid(self):
         """
@@ -294,7 +291,7 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
 
         retval = Markdown.parse(doc)
         self.assertIsNone(retval)
-        self.assertEqual(doc, ["This caused a seg fault?"])
+        self.assertEqual(doc, [])  # lines are eaten in the second round
 
     def test_parse_empty_input(self):
         """

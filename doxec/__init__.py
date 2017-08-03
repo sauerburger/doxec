@@ -1,5 +1,6 @@
 
 import abc
+import re
 
 class Operation(metaclass=abc.ABCMeta):
     """
@@ -116,7 +117,16 @@ class Markdown(DoxecSyntax):
         """
         See DoxecSyntax.
         """
-        pass
+        while len(lines) > 0:
+            cmd = Markdown.parse_command(lines[0])
+            del lines[0]
+            if cmd is not None:
+                code = Markdown.parse_code(lines)
+                if code is not None:
+                    return cmd[0], cmd[1], code
+
+        return None
+                    
 
     @staticmethod
     def parse_command(line):
@@ -131,10 +141,17 @@ class Markdown(DoxecSyntax):
         >>> Markdown.parse_command("<!-- write file.txt -->")
         ('write', 'file.txt')
 
-        >>> Markdown.parse_command("<!-- invalid line ")
-        None
+        >>> Markdown.parse_command("<!-- invalid line ") is None
+        True
         """
-        pass
+        match = re.match(r"<!--\s+(\S.*\S)\s+-->\s*$", line)
+        if match is None:
+            return None
+        token = re.split("\s+", match.group(1), maxsplit=1)
+        if len(token) == 2:
+            return tuple(token)
+        else:
+            return token[0], None
 
     @staticmethod
     def parse_code(lines):
@@ -146,14 +163,39 @@ class Markdown(DoxecSyntax):
         None if an error.
         occurs.
         >>> lines = []
-        >>> lines += "```bash"
-        >>> lines += "$ whoami"
-        >>> lines += "$ ls"
-        >>> lines += "```"
+        >>> lines.append("```bash")
+        >>> lines.append("$ whoami")
+        >>> lines.append("$ ls")
+        >>> lines.append("```")
+        >>> lines.append("lalala")
         >>> Markdown.parse_code(lines)
-        ["$ whoami", "$ ls"]
+        ['$ whoami', '$ ls']
+        >>> lines
+        ['lalala']
         """
-        pass
+        if len(lines) == 0:
+            return None
+
+        head = lines[0]
+        match = re.match(r"```.*$", head)
+        if match is None:
+            return None
+
+        del lines[0]  # delete start
+
+        buf  = []
+        while len(lines) > 0:
+            # found end?
+            if lines[0] == "```":
+                del lines[0]
+                return buf
+                
+            # eat lines and add them to the buffer
+            buf.append(lines[0])
+            del lines[0]
+        
+        # there was no end
+        return None
 
 
 class Document:
