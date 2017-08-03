@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name="doxec",
-    version= "0.0.1",
+    version= "0.1.0",
     author="Frank Sauerburger",
     author_email= "frank@sauerburger.com",
     description=("Run documentation and test whether the examples work."),
@@ -15,7 +15,7 @@ setup(
     scripts=['bin/doxec'],
     test_suite='doxec.tests',
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Environment :: Console",
         "Intended Audience :: Education",
         "Intended Audience :: Science/Research",
