@@ -1,6 +1,15 @@
 
 import abc
 import re
+import subprocess
+
+class TestException(Exception):
+    """
+    This exception should be raised, if an operation performed tests and one
+    of these tests fails.
+    """
+    pass
+    
 
 class Operation(metaclass=abc.ABCMeta):
     """
@@ -55,10 +64,38 @@ class OpWrite(Operation):
     command = "write"
 
     def execute(self):
-        pass
+        with open(self.args, "w") as f:
+            for line in self.content:
+                print(line, file=f)
 
-# add write operation to op_store
-Operation.op_store.append(OpWrite)
+class OpAppend(Operation):
+    """
+    This operation performs a 'append to file' operation.
+    """
+    command = "append"
+
+    def execute(self):
+        with open(self.args, "a") as f:
+            for line in self.content:
+                print(line, file=f)
+
+class OpConsole(Operation):
+    """
+    This operation runs all lines starting with $ in the console. The
+    operation raises an error, if the return code is not zero.
+    """
+    command = "console"
+
+    def execute(self):
+        job = subprocess.Popen("/bin/bash", stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        script = "\n".join([l[1:] for l in self.content if l.startswith("$")])
+        (stdoutdata, stderrdata) = job.communicate(script.encode('utf8'))
+        if job.returncode != 0:
+            raise TestException("Script failed with %d:" % job.returncode,
+                stdoutdata.decode('utf8'), stderrdata.decode('utf8'))
+                
+
 
 class OpConsoleOutput(Operation):
     """
@@ -67,11 +104,14 @@ class OpConsoleOutput(Operation):
     """
     command = "console_output"
 
-    def executed(self):
+    def execute(self):
         pass
 
-# add write operation to op_store
+# add operations to op_store
+Operation.op_store.append(OpConsole)
 Operation.op_store.append(OpConsoleOutput)
+Operation.op_store.append(OpAppend)
+Operation.op_store.append(OpWrite)
 
 class DoxecSyntax(metaclass=abc.ABCMeta):
     """
