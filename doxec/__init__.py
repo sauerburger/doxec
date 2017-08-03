@@ -86,11 +86,12 @@ class DoxecSyntax(metaclass=abc.ABCMeta):
         """
         Reads everything from the given list of lines until a valid magic tag
         is found. The method the extracts the command name, its argument and
-        the command content. These parts are also removed from the string. The
-        method modifies the string in place.
+        the command content. These parts are also removed from the line list.
+        The method modifies the list in place.
 
         The return value is a triplet of (command, argument, content). None is
-        returned, if no valid magic tag could be found.
+        returned, if no valid magic tag could be found. The content item is a
+        list of code lines.
         """
         pass
 
@@ -112,6 +113,9 @@ class Markdown(DoxecSyntax):
 
     @staticmethod
     def parse(lines):
+        """
+        See DoxecSyntax.
+        """
         pass
 
     @staticmethod
@@ -138,7 +142,8 @@ class Markdown(DoxecSyntax):
         Expects the beginning of a code block, removes all lines which belong
         to the code block.
         
-        Returns the content of this code block, returns None if an error
+        Returns the content of this code block as a list of lines, returns
+        None if an error.
         occurs.
         >>> lines = []
         >>> lines += "```bash"
@@ -146,8 +151,7 @@ class Markdown(DoxecSyntax):
         >>> lines += "$ ls"
         >>> lines += "```"
         >>> Markdown.parse_code(lines)
-        $ whoami
-        $ ls
+        ["$ whoami", "$ ls"]
         """
         pass
 
