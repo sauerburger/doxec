@@ -1,0 +1,18 @@
+image: ${CI_REGISTRY}/${CI_PROJECT_PATH}/ubuntu_python3:latest
+
+stages:
+  - test
+
+doxec_unittest:
+  stage: test
+  script:
+    - python3 -m unittest doxec.tests
+
+     
+doxec_doctest:
+  stage: test
+  script:
+    - python3 -m doctest doxec/*.py
+
+     
+
