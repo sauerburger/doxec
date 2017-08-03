@@ -1,7 +1,7 @@
 
-from abc import ABCMeta
+import abc
 
-class Operation(metaclass=ABCMeta):
+class Operation(metaclass=abc.ABCMeta):
     """
     This class represents a single task defined in a documentation, such as
     'create a file' or 'run a command'. Each operation is implemented by a sub
@@ -44,7 +44,7 @@ class Operation(metaclass=ABCMeta):
         """
         for op_cls in Operation.op_store:
             op = op_cls.create(command, args, content)
-            if op is not None
+            if op is not None:
                 return op
 
 class OpWrite(Operation):
@@ -59,7 +59,7 @@ class OpWrite(Operation):
 # add write operation to op_store
 Operation.op_store.append(OpWrite)
 
-class OpConsoleOutput(self):
+class OpConsoleOutput(Operation):
     """
     This operation runs all lines starting with $ in the console and expects
     the output written after that.
@@ -72,7 +72,7 @@ class OpConsoleOutput(self):
 # add write operation to op_store
 Operation.op_store.append(OpConsoleOutput)
 
-class DoxecSyntax(metaclass=ABCMeta):
+class DoxecSyntax(metaclass=abc.ABCMeta):
     """
     This class defines the rules and implements the syntax of the magic
     commands, to be used in the documentation. Depending on the language (e.g.
@@ -80,8 +80,8 @@ class DoxecSyntax(metaclass=ABCMeta):
     used.
     """
 
-    @abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def parse(lines):
         """
         Reads everything from the given list of lines until a valid magic tag
