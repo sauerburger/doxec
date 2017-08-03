@@ -261,6 +261,9 @@ class Markdown(DoxecSyntax):
         # there was no end
         return None
 
+parser = {
+    "markdown": Markdown
+}
 
 class Document:
     """
@@ -295,9 +298,21 @@ class Document:
             self.operations.append(op_obj)
 
 
-    def run(self):
+    def run(self, monitor=None):
         """
-        Runs all operations stored attached to this object.
+        Runs all operations stored attached to this object. The monitor object
+        is called after every iteration. The first argument of monitor is the
+        operation object, the second argument is None or the exception that
+        occurred.
         """
         for op in self.operations:
-            op.execute()
+            try:
+                op.execute()
+            except TestException as e:
+                if callable(monitor):
+                    monitor(op, e)
+                else:
+                    raise e
+            else:
+                if callable(monitor):
+                    monitor(op, None)
