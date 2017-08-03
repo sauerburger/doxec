@@ -169,4 +169,29 @@ class OpConsoleOutputTestCase(unittest.TestCase):
     Test the functionality of the console-output-operation. This test case focuses on
     the execute method.
     """
-    pass
+    
+    def test_execute_pass(self):
+        """
+        Creates an OpConsoleOutput operation and checks that no exception is raised,
+        when the expected output matches the actual output.
+        """
+        console = OpConsoleOutput(None,
+            ["$ echo 'Hi'", "Hi", "$ echo 'Hello\n  World'", "Hello", "  World"])
+        console.execute()
+
+    def test_execute_fail(self):
+        """
+        Creates an OpConsoleOutput operation and checks that an exception is raised,
+        when the expected output does not match the actual output.
+        """
+        console = OpConsoleOutput(None,
+            ["$ echo 'Hi'", "Hi", "$ echo 'Hello\n  World'", "Hello", "Moon"])
+        self.assertRaises(TestException, console.execute)
+
+    def test_execute_leading_comments(self):
+        """
+        Creates an OpConsoleOutput operation and checks whether leading
+        non-code lines are ignored.
+        """
+        console = OpConsoleOutput(None, ["heyho", "$ echo 'Hi'", "Hi"])
+        console.execute()

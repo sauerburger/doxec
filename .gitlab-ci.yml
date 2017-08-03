@@ -6,7 +6,7 @@ stages:
 doxec_unittest:
   stage: test
   script:
-    - python3 -m unittest doxec.tests
+    - python3 -m unittest -v doxec.tests
 
      
 doxec_doctest:

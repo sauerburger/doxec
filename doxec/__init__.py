@@ -94,6 +94,7 @@ class OpConsole(Operation):
         if job.returncode != 0:
             raise TestException("Script failed with %d:" % job.returncode,
                 stdoutdata.decode('utf8'), stderrdata.decode('utf8'))
+        return stdoutdata
                 
 
 
@@ -105,7 +106,30 @@ class OpConsoleOutput(Operation):
     command = "console_output"
 
     def execute(self):
-        pass
+        commands = []  # items are (command, [output lines])
+        for line in self.content:
+            if line.startswith("$"):
+                commands.append((line[1:], []))
+            elif len(commands) == 0:
+                # no command yet
+                continue
+            else:
+                commands[-1][1].append(line)
+
+        for command, lines in commands:
+            job = subprocess.Popen("/bin/bash", stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdoutdata, stderrdata) = job.communicate(command.encode('utf8'))
+            if job.returncode != 0:
+                raise TestException("Script failed with %d:" % job.returncode,
+                    stdoutdata.decode('utf8'), stderrdata.decode('utf8'))
+            output = stdoutdata.decode('utf8')
+            output = re.split(r'\r?\n', output)
+            if len(output) > 0 and output[-1] == '':
+                del output[-1] 
+            if lines != output:
+                raise TestException("Output differs", lines, output)
+       
 
 # add operations to op_store
 Operation.op_store.append(OpConsole)
