@@ -271,16 +271,33 @@ class Document:
     operations within the object are executed.
     """
 
-    def __init__(self, document_path):
+    def __init__(self, document_path, syntax=Markdown):
         """
         Creates a new document object and parses the given document.
         """
         self.operations = []
-        pass
+        with open(document_path) as f:
+            self.parse(f.read(), syntax)
 
-    def parse(self, string):
+    def parse(self, string, syntax):
         """
         Parses the content string and appends all operations defined in the
         string to the internal storage.
         """
-        pass
+        lines = re.split("\r?\n", string)
+        while len(lines) > 0:
+            op_tuple = syntax.parse(lines)
+            if op_tuple is None:
+                continue
+            op_obj = Operation.factory(*op_tuple)
+            if op_obj is None:
+                continue
+            self.operations.append(op_obj)
+
+
+    def run(self):
+        """
+        Runs all operations stored attached to this object.
+        """
+        for op in self.operations:
+            op.execute()

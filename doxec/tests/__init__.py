@@ -5,3 +5,4 @@ from .operation import OpWriteTestCase
 from .operation import OpAppendTestCase
 from .operation import OpConsoleTestCase
 from .operation import OpConsoleOutputTestCase
+from .document import DocumentTestCase
