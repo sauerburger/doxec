@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name="doxec",
-    version= "0.1.0",
+    version= "0.1.1",
     author="Frank Sauerburger",
     author_email= "frank@sauerburger.com",
     description=("Run documentation and test whether the examples work."),

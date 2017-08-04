@@ -3,6 +3,8 @@ import abc
 import re
 import subprocess
 
+__version__ = "0.1.1"
+
 class TestException(Exception):
     """
     This exception should be raised, if an operation performed tests and one
@@ -310,11 +312,15 @@ class Document:
         is called after every iteration. The first argument of monitor is the
         operation object, the second argument is None or the exception that
         occurred.
+
+        The method returns True on success.
         """
+        success = True
         for op in self.operations:
             try:
                 op.execute()
             except TestException as e:
+                success = False
                 if callable(monitor):
                     monitor(op, e)
                 else:
@@ -322,3 +328,4 @@ class Document:
             else:
                 if callable(monitor):
                     monitor(op, None)
+        return success
