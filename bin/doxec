@@ -2,6 +2,7 @@
 
 import argparse
 import doxec
+import sys
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -29,6 +30,9 @@ if __name__ == "__main__":
             print(exception, end="")
             print(chr(27) + "[0m")
 
+    fail_count = 0
     for doc_path in args.documents:
         doc = doxec.Document(doc_path, syntax=parser)
-        doc.run(monitor=monitor)
+        fail_count += not doc.run(monitor=monitor)
+
+    sys.exit(fail_count)

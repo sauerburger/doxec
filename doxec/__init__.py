@@ -310,11 +310,15 @@ class Document:
         is called after every iteration. The first argument of monitor is the
         operation object, the second argument is None or the exception that
         occurred.
+
+        The method returns True on success.
         """
+        success = True
         for op in self.operations:
             try:
                 op.execute()
             except TestException as e:
+                success = False
                 if callable(monitor):
                     monitor(op, e)
                 else:
@@ -322,3 +326,4 @@ class Document:
             else:
                 if callable(monitor):
                     monitor(op, None)
+        return success
