@@ -3,6 +3,8 @@ import abc
 import re
 import subprocess
 
+__version__ = "0.1.1"
+
 class TestException(Exception):
     """
     This exception should be raised, if an operation performed tests and one
