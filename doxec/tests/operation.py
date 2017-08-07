@@ -103,6 +103,13 @@ class OpWriteTestCase(unittest.TestCase):
         
         os.remove(tmp_path)
 
+    def test_str(self):
+        """
+        Test string representation.
+        """
+        op = OpWrite("/path/to/file", ["content", "lines"])
+        self.assertEqual(str(op), "write(/path/to/file)")
+
 
 class OpAppendTestCase(unittest.TestCase):
     """
@@ -130,6 +137,13 @@ class OpAppendTestCase(unittest.TestCase):
             self.assertEqual(f.read(), "Hello\n World\n!\n")
         
         os.remove(tmp_path)
+
+    def test_str(self):
+        """
+        Test string representation.
+        """
+        op = OpAppend("/path/to/file", ["content", "lines"])
+        self.assertEqual(str(op), "append(/path/to/file)")
 
 class OpConsoleTestCase(unittest.TestCase):
     """
@@ -164,6 +178,46 @@ class OpConsoleTestCase(unittest.TestCase):
         console = OpConsole(None, ["$ exit 1"])
         self.assertRaises(TestException, console.execute)
 
+    def test_execute_ignore(self):
+        """
+        Create a OpConsole operation and check that it ignores lines without
+        $.
+        """
+        console = OpConsole(None, ["exit 1"])
+        console.execute()
+
+    def test_str(self):
+        """
+        Test string representation.
+        """
+        op = OpConsole(None, ["$ command", "ignore"])
+        self.assertEqual(str(op), "console")
+
+    def test_log(self):
+        """
+        Ensure that the console operation calls the log function, when output is
+        produced.
+        """
+        passed_lines = []
+        def log_function(lines):
+            passed_lines.extend(lines)
+
+        op = OpConsole(None, ["$ echo 'Hey\nYou!'", "$ echo 'Hello You!'"])
+        op.execute(log_function)
+        
+        self.assertEqual(passed_lines,
+            ["$ echo 'Hey\nYou!'", "Hey", "You!", "$ echo 'Hello You!'", "Hello You!"])
+            
+
+    def test_no_log(self):
+        """
+        Ensure that the console operation does not crash if the command
+        produces output, but no log function is present.
+        """
+        op = OpConsole(None, ["$ echo 'Hey\nYou!'", "$ echo 'Hello You!'"])
+        op.execute()
+
+
 class OpConsoleOutputTestCase(unittest.TestCase):
     """
     Test the functionality of the console-output-operation. This test case focuses on
@@ -195,3 +249,33 @@ class OpConsoleOutputTestCase(unittest.TestCase):
         """
         console = OpConsoleOutput(None, ["heyho", "$ echo 'Hi'", "Hi"])
         console.execute()
+
+    def test_str(self):
+        """
+        Test string representation.
+        """
+        op = OpConsoleOutput(None, ["$ command", "ignore"])
+        self.assertEqual(str(op), "console_output")
+
+    def test_log(self):
+        """
+        Ensure that the console_output operation calls the log function, when output is
+        produced.
+        """
+        passed_lines = []
+        def log_function(lines):
+            passed_lines.extend(lines)
+
+        block =["$ echo 'Hey\nYou!'", "Hey", "You!", "$ echo 'Hello You!'", "Hello You!"]
+        op = OpConsoleOutput(None, block)
+        op.execute(log_function)
+        
+        self.assertEqual(passed_lines, block)
+
+    def test_no_log(self):
+        """
+        Ensure that the console operation does not crash if the command
+        produces output, but no log function is present.
+        """
+        op = OpConsole(None, ["$ echo 'Hey\nYou!'", "$ echo 'Hello You!'"])
+        op.execute()

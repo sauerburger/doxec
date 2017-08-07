@@ -18,6 +18,9 @@ if __name__ == "__main__":
     parser.add_argument("--version", action="store_true",
         help="Prints the version of the doxec package and exits.")
 
+    parser.add_argument("--short", action="store_true",
+        help="Suppresses the standard output of operations.")
+
     parser.add_argument("documents", metavar="DOCUMENT", nargs="+", default=[],
         help="A document from which the code examples should be parsed and "
             "executed")
@@ -30,16 +33,18 @@ if __name__ == "__main__":
 
     parser = doxec.parser[args.syntax]
 
-    def monitor(op, exception):
-        print("running %s(%s) ... " % (op.command, op.args))
-        if exception is not None:
-            print(chr(27) + "[31m", end="")
-            print(exception, end="")
-            print(chr(27) + "[0m")
+    print("Copyright (c) 2017 Frank Sauerburger")
 
-    fail_count = 0
     for doc_path in args.documents:
         doc = doxec.Document(doc_path, syntax=parser)
-        fail_count += not doc.run(monitor=monitor)
+        monitor = doxec.Monitor(doc_path, short=args.short)
+        doc.run(monitor=monitor)
 
-    sys.exit(fail_count)
+
+    print("-"*80)
+    color = "\033[31m" if monitor.fail_count > 0 else "\033[32m"
+
+    print(color + "Failed: %5d\033[0m" % monitor.fail_count)
+    print("Total:  %5d" % monitor.total_count)
+
+    sys.exit(monitor.fail_count)
