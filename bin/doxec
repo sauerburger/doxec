@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     parser = doxec.parser[args.syntax]
 
-    print("Copyright (c) 2017 Frank Sauerburger")
+    print("Doxec -- Copyright (c) 2017 Frank Sauerburger")
 
     for doc_path in args.documents:
         doc = doxec.Document(doc_path, syntax=parser)
