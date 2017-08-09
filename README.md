@@ -58,11 +58,11 @@ Please note, that leading white spaces before `<!--` are not allowed.
 The line immediately after the command line must be the beginning of a Markdown
 code block. 
 
+<pre>
+```bash
+$ echo "Hello World!"
 ```
-    ```bash
-    $ echo "Hello World!"
-    ```
-```
+</pre>
 
 The language indication, here `bash`, is ignored. Everything inside the code
 block is taken as the content of the operation.
@@ -79,23 +79,30 @@ explained in a text, but should be executed as a script for testing.
 ### Example
 
 A full example of a imaginary bash tutorial (hello_world.md) can look like this. 
-```markdown
-    A mandatory step in learning a new technology in computer science is to
-    run a 'hello world' example. Your first step in bash should be no exception.
-    Open a bash shell and type everything after the `$` sign and hit return.
-    The shell should greet you and everybody else in the world as shown in
-    this example.
-    <!-- console_output -->
-    ```bash
-    $ echo "Hello World!"
-    Hello World!
-    ```
+<pre>
+A mandatory step in learning a new technology in computer science is to
+run a 'hello world' example. Your first step in bash should be no exception.
+Open a bash shell and type everything after the `$` sign and hit return.
+The shell should greet you and everybody else in the world as shown in
+this example.
+<!-- console_output -->
+```bash
+$ echo "Hello World!"
+Hello World!
 ```
+</pre>
 
-To verify that this code snipped in this tutorial works as expected run
+To verify that the code snipped in this tutorial works as expected run
 ```bash
 $ doxec hello_world.md
-running console_output(None) ...
+/home/esel/rpriv/doxec/hello_world.md:6     console_output ... 
+--- $ echo "Hello World!"
+--- Hello World!
+/home/esel/rpriv/doxec/hello_world.md:6     console_output ... done
+--------------------------------------------------------------------------------
+Failed:     0
+Total:      1
+
 ```
 The *console_output* command runs the lines starting with `$` in a bash shell
 and compares the output list below.
