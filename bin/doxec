@@ -35,16 +35,18 @@ if __name__ == "__main__":
 
     print("Doxec -- Copyright (c) 2017 Frank Sauerburger")
 
+    # Loop over documents
     for doc_path in args.documents:
         doc = doxec.Document(doc_path, syntax=parser)
         monitor = doxec.Monitor(doc_path, short=args.short)
         doc.run(monitor=monitor)
 
-
+    # Print summary
     print("-"*80)
     color = "\033[31m" if monitor.fail_count > 0 else "\033[32m"
 
     print(color + "Failed: %5d\033[0m" % monitor.fail_count)
     print("Total:  %5d" % monitor.total_count)
 
+    # Return code equals number of failed operations
     sys.exit(monitor.fail_count)

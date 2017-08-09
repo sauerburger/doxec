@@ -104,19 +104,37 @@ class OpConsole(Operation):
 
     def execute(self, log=None):
         if log is None:
+            # Set pseudo logger.
             log = lambda x: None
 
+        # Select lines with $-sign and trim it.
         script = [l[1:].lstrip() for l in self.content if l.startswith("$")]
+
+        # Loop over commands
         for command in script:
+            # Call logger.
             log(["$ %s" % command])
+
+            # Execute in a new bash shell.
             job = subprocess.Popen("/bin/bash", stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            # Pass script as standard input to bash.
             (stdoutdata, stderrdata) = job.communicate(command.encode('utf8'))
+
+            # Decode standard out and split into lines.
             output = stdoutdata.decode('utf8')
             output = re.split(r'\r?\n', output)
+
+            # Remove trailing empty line.
             if len(output) > 0 and output[-1] == '':
                 del output[-1] 
+
+            # Pass standard output of the command to logger.
             log(output)
+
+            # Perform test, whether command failed. Continue loop on
+            # success.
             if job.returncode != 0:
                 raise TestException("Script failed with return code %d:" % job.returncode,
                     stdoutdata.decode('utf8'), stderrdata.decode('utf8'))
@@ -134,31 +152,54 @@ class OpConsoleOutput(Operation):
 
     def execute(self, log=None):
         if log is None:
+            # Set pseudo logger.
             log = lambda x: None
 
-        commands = []  # items are (command, [output lines])
+        # Split the operation body into a list of tuple. Each tuple consists
+        # of a command and a list of expected output lines.
+        commands = []
         for line in self.content:
             if line.startswith("$"):
+                # Append a new tuple, with a blank list of expected output.
                 commands.append((line[1:].lstrip(), []))
             elif len(commands) == 0:
-                # no command yet
+                # There hasn't been a command, ignore expected output lines.
                 continue
             else:
+                # Append output line to list of expected output for the most
+                # recent command.
                 commands[-1][1].append(line)
 
+        # Loop over commands and their expected output.
         for command, lines in commands:
+            # Call logger.
             log(["$ %s" % command])
+
+            # Execute in a new bash shell.
             job = subprocess.Popen("/bin/bash", stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            # Pass script as standard input to bash.
             (stdoutdata, stderrdata) = job.communicate(command.encode('utf8'))
+
+            # Pass script as standard input to bash.
+            output = stdoutdata.decode('utf8')
+            output = re.split(r'\r?\n', output)
+
+            # Remove trailing empty line.
+            if len(output) > 0 and output[-1] == '':
+                del output[-1] 
+
+            # Pass standard output of the command to logger.
+            log(output)
+
+            # Perform test, whether command failed. Continue on success.
             if job.returncode != 0:
                 raise TestException("Script failed with return code %d:" % job.returncode,
                     stdoutdata.decode('utf8'), stderrdata.decode('utf8'))
-            output = stdoutdata.decode('utf8')
-            output = re.split(r'\r?\n', output)
-            if len(output) > 0 and output[-1] == '':
-                del output[-1] 
-            log(output)
+
+            # Perform test, whether the standard output matched the expected
+            # output. Continue loop on success.
             if lines != output:
                 first_offending = None
                 for l, o in zip(lines, output):
@@ -359,7 +400,7 @@ class Document:
         fail_count = 0
         total_operations = 0
 
-        # set defaults
+        # set defaults / pseudo monitors
         before_method = lambda l, o: None
         log_method = lambda ls: None
         after_method = lambda e=None: None
@@ -370,15 +411,21 @@ class Document:
             log_method = monitor.log
             after_method = monitor.after_execute
 
+        # Loop over operations in this document.
         for line, op in self.operations:
+            # Call (pseudo) monitor.
             before_method(line, op)
             total_operations += 1
             try:
+                # Pass monitors log method to operation, to log standard
+                # output.
                  op.execute(log=log_method)
             except TestException as e:
+                # Notify (pseudo) monitor about failure.
                 after_method(e)
                 fail_count += 1
             else:
+                # Notify (pseudo) monitor about success.
                 after_method()
 
         return (fail_count, total_operations)
