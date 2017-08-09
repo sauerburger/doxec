@@ -256,11 +256,12 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         doc.append("```")
 
         retval = Markdown.parse(doc)
-        self.assertEqual(len(retval), 3)
-        command, args, content = retval
+        self.assertEqual(len(retval), 4)
+        command, args, content, length = retval
         self.assertEqual(command, "APPEND")
         self.assertEqual(args, "/dev/null")
         self.assertEqual(content, ["touch /tmp", "touch /home"])
+        self.assertEqual(length, 5)
 
     def test_parse_valid_additional_lines(self):
         """
@@ -278,11 +279,12 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
         doc.append("This caused a seg fault?")
 
         retval = Markdown.parse(doc)
-        self.assertEqual(len(retval), 3)
-        command, args, content = retval
+        self.assertEqual(len(retval), 4)
+        command, args, content, length = retval
         self.assertEqual(command, "APPEND")
         self.assertEqual(args, "/dev/null")
         self.assertEqual(content, ["touch /tmp", "touch /home"])
+        self.assertEqual(length, 5)
         self.assertEqual(doc, ["This caused a seg fault?"])
 
 
