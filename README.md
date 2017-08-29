@@ -115,10 +115,10 @@ To verify that the code snipped in this tutorial works as expected run
 ```bash
 $ doxec hello_world.md
 Doxec -- Copyright (c) 2017 Frank Sauerburger
-/home/esel/rpriv/doxec/hello_world.md:6     console_output ... 
+/builds/frank/doxec/hello_world.md:6     console_output ... 
 --- $ echo "Hello World!"
 --- Hello World!
-/home/esel/rpriv/doxec/hello_world.md:6     console_output ... done
+/builds/frank/doxec/hello_world.md:6     console_output ... done
 --------------------------------------------------------------------------------
 Failed:     0
 Total:      1
