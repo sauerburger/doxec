@@ -180,22 +180,6 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
 
         self.assertEqual(block, ["This should not cause a crash."])
 
-    def test_parse_code_leading_lines(self):
-        """
-        Run parse_command on input with leading lines and check that parsing
-        failed.
-        """
-        block = []
-        block.append("This is a leading line.")
-        block.append("```shell")
-        block.append("touch /tmp")
-        block.append("touch /home")
-        block.append("```")
-        
-        retval = Markdown.parse_code(block)
-        self.assertIsNone(retval)
-        self.assertEqual(block, [])
-
     def test_parse_code_missing_start(self):
         """
         Run parse_command on input without the block start and check that
@@ -323,3 +307,198 @@ class MarkdownSyntaxTestCase(unittest.TestCase):
 
         retval = Markdown.parse([])
         self.assertIsNone(retval)
+
+###########
+
+    def test_parse_code_valid_pre(self):
+        """
+        Run parse_command on a pre-block input and check that the return value
+        contains the specified block of code. The example should remove all
+        lines from the input.
+        """
+        block = []
+        block.append("<pre>")
+        block.append("whoami")
+        block.append("ls ~")
+        block.append("</pre>")
+        retval = Markdown.parse_code(block)
+        self.assertEqual(len(retval), 2)
+        self.assertEqual(retval[0], "whoami")
+        self.assertEqual(retval[1], "ls ~")
+
+        self.assertEqual(block, [])
+
+    def test_parse_code_mix_delimiter_1(self):
+        """
+        Run parse_command on a pre-block input which contains ```. The
+        parse_code should read this as-is and not interpret it as the block
+        delimiter.
+        """
+        block = []
+        block.append("<pre>")
+        block.append("whoami")
+        block.append("```")
+        block.append("</pre>")
+        retval = Markdown.parse_code(block)
+        self.assertEqual(len(retval), 2)
+        self.assertEqual(retval[0], "whoami")
+        self.assertEqual(retval[1], "```")
+
+        self.assertEqual(block, [])
+
+    def test_parse_code_mix_delimiter_2(self):
+        """
+        Run parse_command on a block input which contains </pre> The
+        parse_code should read this as-is and not interpret it as the block
+        delimiter.
+        """
+        block = []
+        block.append("```")
+        block.append("<pre>")
+        block.append("</pre>")
+        block.append("```")
+        retval = Markdown.parse_code(block)
+        self.assertEqual(len(retval), 2)
+        self.assertEqual(retval[0], "<pre>")
+        self.assertEqual(retval[1], "</pre>")
+
+        self.assertEqual(block, [])
+
+
+    def test_parse_code_empty_pre(self):
+        """
+        Run parse_command on an empty pre-block. The return value should be
+        an empty list.
+        """
+        block = []
+        block.append("<pre>")
+        block.append("</pre>")
+        retval = Markdown.parse_code(block)
+        self.assertEqual(retval, [])
+
+    def test_parse_code_trailing_lines_pre(self):
+        """
+        Run parse_command on pre-input with trailing lines. Check that the
+        trailing list is not in the output and all other lines have been
+        removed from the input.
+        """
+        block = []
+        block.append("<pre>")
+        block.append("touch /tmp")
+        block.append("touch /home")
+        block.append("</pre>")
+        block.append("This should not cause a crash.") 
+        
+        retval = Markdown.parse_code(block)
+        self.assertEqual(retval, ["touch /tmp", "touch /home"])
+
+        self.assertEqual(block, ["This should not cause a crash."])
+
+    def test_parse_code_missing_start_pre(self):
+        """
+        Run parse_command on pre-input without the block start and check that
+        parsing failed.
+        """
+        block = []
+        block.append("touch /tmp")
+        block.append("touch /home")
+        block.append("</pre>")
+        
+        retval = Markdown.parse_code(block)
+        self.assertIsNone(retval)
+        self.assertEqual(block, ['touch /tmp', 'touch /home', '</pre>'])
+
+    def test_parse_code_missing_end_pre(self):
+        """
+        Run parse_command on pre-input without the block end and check that
+        parsing failed.
+        """
+        block = []
+        block.append("<pre>")
+        block.append("touch /tmp")
+        block.append("touch /home")
+        
+        retval = Markdown.parse_code(block)
+        self.assertIsNone(retval)
+        self.assertEqual(block, [])
+
+
+    def test_parse_code_leading_lines_pre(self):
+        """
+        Run parse_command on pre-input with leading lines and check that parsing
+        failed. The parse method should not remove any lines in this case.
+        """
+        block = []
+        block.append("This is a leading line.")
+        block.append("<pre>")
+        block.append("touch /tmp")
+        block.append("touch /home")
+        block.append("</pre>")
+        
+        retval = Markdown.parse_code(block)
+        self.assertIsNone(retval)
+
+        self.assertEqual(len(block), 5)
+
+    def test_parse_valid_pre(self):
+        """
+        Check that a simple pre-example runs and returns args, command and
+        content.
+        """
+        doc = []
+        doc.append("<!-- APPEND /dev/null -->")
+        doc.append("<pre>")
+        doc.append("touch /tmp")
+        doc.append("touch /home")
+        doc.append("</pre>")
+
+        retval = Markdown.parse(doc)
+        self.assertEqual(len(retval), 4)
+        command, args, content, length = retval
+        self.assertEqual(command, "APPEND")
+        self.assertEqual(args, "/dev/null")
+        self.assertEqual(content, ["touch /tmp", "touch /home"])
+        self.assertEqual(length, 5)
+
+    def test_parse_valid_additional_lines_pre(self):
+        """
+        Check that an pre-example with unrelated lines runs and returns args,
+        command and content. The inital list of lines should be modified and
+        is expected to contain only the tailing lines.
+        """
+        doc = []
+        doc.append("Yeeharr, this is an example.")
+        doc.append("<!-- APPEND /dev/null -->")
+        doc.append("<pre>")
+        doc.append("touch /tmp")
+        doc.append("touch /home")
+        doc.append("</pre>")
+        doc.append("This caused a seg fault?")
+
+        retval = Markdown.parse(doc)
+        self.assertEqual(len(retval), 4)
+        command, args, content, length = retval
+        self.assertEqual(command, "APPEND")
+        self.assertEqual(args, "/dev/null")
+        self.assertEqual(content, ["touch /tmp", "touch /home"])
+        self.assertEqual(length, 5)
+        self.assertEqual(doc, ["This caused a seg fault?"])
+
+
+
+    def test_parse_no_tag_pre(self):
+        """
+        Check that an pre-example without any tags fails. This sould consume all
+        lines.
+        """
+        doc = []
+        doc.append("Yeeharr, this is an example.")
+        doc.append("<pre>")
+        doc.append("touch /tmp")
+        doc.append("touch /home")
+        doc.append("</pre>")
+        doc.append("This caused a seg fault?")
+
+        retval = Markdown.parse([])
+        self.assertIsNone(retval)
+
