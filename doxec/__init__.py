@@ -333,7 +333,8 @@ class Markdown(DoxecSyntax):
 
         head = lines[0]
         match = re.match(r"```.*$", head)
-        if match is None:
+        pre_block = (head == "<pre>")
+        if match is None and not pre_block:
             return None
 
         del lines[0]  # delete start
@@ -341,7 +342,8 @@ class Markdown(DoxecSyntax):
         buf  = []
         while len(lines) > 0:
             # found end?
-            if lines[0] == "```":
+            if (not pre_block and lines[0] == "```") or \
+                    (pre_block and lines[0] == "</pre>"):
                 del lines[0]
                 return buf
                 
