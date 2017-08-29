@@ -16,10 +16,11 @@ This ensures that the code snippets work as intended.
 
 You can simply clone the repository and run the setup script to get doxec.
 
+
+<!-- console -->
 ```bash
-$ git clone https://srv.sauerburger.com/esel/doxec.git doxec_install
-$ cd doxec_install
-$ python3 setup.py install
+$ git clone https://srv.sauerburger.com/frank/doxec.git doxec_install
+$ cd doxec_install && python3 setup.py install
 ```
 
 # Usage
@@ -82,6 +83,8 @@ accepts `<pre>` and `</pre>` as code block delimiters.
 ### Example
 
 A full example of a imaginary bash tutorial (hello_world.md) can look like this. 
+
+<!-- write hello_world.md -->
 <pre>
 A mandatory step in learning a new technology in computer science is to
 run a 'hello world' example. Your first step in bash should be no exception.
@@ -95,9 +98,17 @@ Hello World!
 ```
 </pre>
 
+<!-- console
+```
+$ recode html..ascii hello_world.md
+```
+-->
+
 To verify that the code snipped in this tutorial works as expected run
+<!-- console_output -->
 ```bash
 $ doxec hello_world.md
+Doxec -- Copyright (c) 2017 Frank Sauerburger
 /home/esel/rpriv/doxec/hello_world.md:6     console_output ... 
 --- $ echo "Hello World!"
 --- Hello World!
@@ -105,8 +116,8 @@ $ doxec hello_world.md
 --------------------------------------------------------------------------------
 Failed:     0
 Total:      1
-
 ```
+
 The *console_output* command runs the lines starting with `$` in a bash shell
 and compares the output list below.
 
@@ -137,7 +148,3 @@ The following table summarizes the implemented commands.
 | `console` | *none* | Run all lines starting with `$`. All other lines are ignored. This operation fails, if the return value of a command is non-zero. |
 | `console_output` | *none* | Run all lines starting with `$`. All following lines without a leading `$`, are compared to the `stdout` of the previous command. This operation fails, if the outputs differ, or the return value is non-zero. |
 
-# Trivia
-In this early version doxec I have not implemented some kind of meta-execution to
-run doxec on this README file, so ironically the tutorial for doxec could be
-out-of-sync with the actual code.
