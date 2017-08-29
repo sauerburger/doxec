@@ -1,6 +1,4 @@
-image: ${CI_REGISTRY_IMAGE}/ubuntu_python3:latest
-
-LABEL maintainer "frank@sauerburger.com"
+image: ${CI_REGISTRY_IMAGE}
 
 stages:
   - test
