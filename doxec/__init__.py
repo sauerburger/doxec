@@ -4,7 +4,7 @@ import re
 import os
 import subprocess
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 class TestException(Exception):
     """
@@ -440,7 +440,7 @@ class Monitor(metaclass=abc.ABCMeta):
     of a fail and total counter.
     """
 
-    def __init__(self, path, short=False):
+    def __init__(self, path, short=False, color=True):
         """
         Initializes the monitor. A new monitor should be used for each file.
         The short argument, defines whether the standard output of operations
@@ -449,6 +449,7 @@ class Monitor(metaclass=abc.ABCMeta):
 
         self.full_path = os.path.abspath(path)
         self.short = short
+        self.color = color
 
         self.first_line = False
 
@@ -461,7 +462,10 @@ class Monitor(metaclass=abc.ABCMeta):
         This method set the internal values and caches the lines and the
         operation.
         """
-        print("\033[2K\033[0G\033[33m%s:%-5d %s ... \033[39;49m" % (self.full_path, line, operation), end="")
+        if self.color: print("\033[2K\033[0G\033[33m", end="")
+        print("%s:%-5d %s ... " % (self.full_path, line, operation), end="")
+        if self.color: print("\033[39;49m", end="")
+
         self.pending_line_break = True
         self.line = line
         self.operation = operation
@@ -475,7 +479,10 @@ class Monitor(metaclass=abc.ABCMeta):
         """
         self.total_count += 1
         if error is None:
-            print("\033[2K\033[0G\033[32m%s:%-5d %s ... done\033[39;49m" % (self.full_path, self.line, self.operation))
+            if self.color: print("\033[2K\033[0G\033[32m", end="")
+            print("%s:%-5d %s ... done" % (self.full_path, self.line, self.operation), end="")
+            if self.color: print("\033[39;49m", end="")
+            print()
         else:
             self.fail_count += 1
             if self.pending_line_break:
@@ -487,8 +494,13 @@ class Monitor(metaclass=abc.ABCMeta):
             else:
                 args = [str(error)]
             for error_line in args:
-                print("\033[31m%s" % str(error_line))
-            print("\033[31m%s:%-5d %s ... failed\033[39;49m" % (self.full_path, self.line, self.operation))
+                if self.color: print("\033[31m")
+                print(str(error_line))
+
+            if self.color: print("\033[31m", end="")
+            print("%s:%-5d %s ... failed" % (self.full_path, self.line, self.operation), end="")
+            if self.color: print("\033[39;49m", end="")
+            print()
 
     def log(self, lines):
         """

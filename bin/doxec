@@ -3,6 +3,7 @@
 import argparse
 import doxec
 import sys
+import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -21,6 +22,12 @@ if __name__ == "__main__":
     parser.add_argument("--short", action="store_true",
         help="Suppresses the standard output of operations.")
 
+    parser.add_argument("--plain", action="store_true",
+        help="Do no use ASCII control characters, equal to DOXEC_COLOR=0.")
+
+    parser.add_argument("--color", action="store_true",
+        help="Force the usage ASCII control characters. This overrides DOXEC_COLOR=0.")
+
     parser.add_argument("documents", metavar="DOCUMENT", nargs="+", default=[],
         help="A document from which the code examples should be parsed and "
             "executed")
@@ -33,19 +40,30 @@ if __name__ == "__main__":
 
     parser = doxec.parser[args.syntax]
 
+    plain = args.plain or \
+        ("DOXEC_COLOR" in os.environ and os.environ["DOXEC_COLOR"] == '0')
+
+    plain = plain and (not args.color)
+
+
     print("Doxec -- Copyright (c) 2017 Frank Sauerburger")
 
     # Loop over documents
     for doc_path in args.documents:
         doc = doxec.Document(doc_path, syntax=parser)
-        monitor = doxec.Monitor(doc_path, short=args.short)
+        monitor = doxec.Monitor(doc_path, short=args.short, color=not plain)
         doc.run(monitor=monitor)
 
     # Print summary
     print("-"*80)
     color = "\033[31m" if monitor.fail_count > 0 else "\033[32m"
 
-    print(color + "Failed: %5d\033[0m" % monitor.fail_count)
+    if not plain: print(color, end="")
+    print("Failed: %5d" % monitor.fail_count, end="")
+    if not plain: print("\033[0m", end="")
+    print()
+
+
     print("Total:  %5d" % monitor.total_count)
 
     # Return code equals number of failed operations
