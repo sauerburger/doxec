@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--color", action="store_true",
         help="Force the usage ASCII control characters. This overrides DOXEC_COLOR=0.")
 
-    parser.add_argument("documents", metavar="DOCUMENT", nargs="+", default=[],
+    parser.add_argument("documents", metavar="DOCUMENT", nargs="*", default=[],
         help="A document from which the code examples should be parsed and "
             "executed")
 
@@ -38,15 +38,18 @@ if __name__ == "__main__":
         print("Doxec package version: %s" % doxec.__version__) 
         sys.exit(0)
 
+    if len(args.documents) == 0:
+        sys.exit(0)
+
+    print("Doxec -- Copyright (c) 2017 Frank Sauerburger")
+
+
     parser = doxec.parser[args.syntax]
 
     plain = args.plain or \
         ("DOXEC_COLOR" in os.environ and os.environ["DOXEC_COLOR"] == '0')
 
     plain = plain and (not args.color)
-
-
-    print("Doxec -- Copyright (c) 2017 Frank Sauerburger")
 
     # Loop over documents
     for doc_path in args.documents:
