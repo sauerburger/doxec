@@ -76,6 +76,9 @@ around the whole code block, and thus execute an operation, which is not
 visible to the user. This can be used to perform operations, which are
 explained in a text, but should be executed as a script for testing.
 
+Since version 0.3.0, there exists an alternative syntax. The new syntax
+accepts `<pre>` and `</pre>` as code block delimiters.
+
 ### Example
 
 A full example of a imaginary bash tutorial (hello_world.md) can look like this. 
