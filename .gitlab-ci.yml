@@ -20,5 +20,6 @@ README:
       DOXEC_COLOR: 0
 
     script:
+     - python3 setup.py install
      - bin/doxec --color README.md 
 

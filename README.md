@@ -17,10 +17,16 @@ This ensures that the code snippets work as intended.
 You can simply clone the repository and run the setup script to get doxec.
 
 
-<!-- console -->
+<!-- console 
 ```bash
 $ git clone https://srv.sauerburger.com/frank/doxec.git doxec_install
-$ cd doxec_install && python3 setup.py install
+```
+-->
+
+```bash
+$ git clone https://srv.sauerburger.com/frank/doxec.git doxec_install
+$ cd doxec_install 
+$ python3 setup.py install
 ```
 
 # Usage
