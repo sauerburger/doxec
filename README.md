@@ -14,7 +14,13 @@ This ensures that the code snippets work as intended.
 
 # Installation [![build status](https://srv.sauerburger.com/esel/doxec/badges/master/build.svg)](https://srv.sauerburger.com/esel/doxec/commits/master)
 
-You can simply clone the repository and run the setup script to get doxec.
+You can install the package using pip
+
+```bash
+$ pip install doxec
+```
+
+or you can clone the repository and run the setup script to get doxec.
 
 
 <!-- console 

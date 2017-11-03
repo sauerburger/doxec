@@ -14,6 +14,7 @@ setup(
     packages=['doxec'],
     scripts=['bin/doxec'],
     test_suite='doxec.tests',
+    url="https://gitlab.sauerburger.com/frank/doxec",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
