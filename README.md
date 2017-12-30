@@ -12,7 +12,7 @@ which parses codes examples from a documentation or a tutorial and runs them.
 This ensures that the code snippets work as intended.
 
 
-# Installation [![build status](https://srv.sauerburger.com/esel/doxec/badges/master/build.svg)](https://srv.sauerburger.com/esel/doxec/commits/master)
+# Installation [![build status](https://gitlab.sauerburger.com/frank/doxec/badges/master/build.svg)](https://gitlab.sauerburger.com/frank/doxec/commits/master)
 
 You can install the package using pip
 
@@ -25,13 +25,13 @@ or you can clone the repository and run the setup script to get doxec.
 
 <!-- console 
 ```bash
-$ git clone https://srv.sauerburger.com/frank/doxec.git doxec_install
+$ git clone https://gitlab.sauerburger.com/frank/doxec.git doxec_install
 ```
 -->
 
 ```bash
-$ git clone https://srv.sauerburger.com/frank/doxec.git doxec_install
-$ cd doxec_install 
+$ git clone https://gitlab.sauerburger.com/frank/doxec.git
+$ cd doxec
 $ python3 setup.py install
 ```
 
